@@ -1,0 +1,46 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/qtquickcontrols2.conf</file>
+        <file>img/green-marker.png</file>
+        <file>img/green-pin.png</file>
+        <file>img/connect.png</file>
+        <file>img/disconnect.png</file>
+        <file>img/group.png</file>
+        <file>img/joystick.png</file>
+        <file>img/microphone.png</file>
+        <file>img/polygon.png</file>
+        <file>img/quadro.png</file>
+        <file>img/speaker.png</file>
+        <file>qml/ConnectDlg.qml</file>
+        <file>qml/TelemetryWidget.qml</file>
+        <file>img/telemetry.png</file>
+        <file>img/hud.png</file>
+        <file>img/options.png</file>
+        <file>qml/LogWindow.qml</file>
+        <file>img/mission.png</file>
+        <file>qml/PanelButton.qml</file>
+        <file>img/camera.png</file>
+        <file>qml/LocationWidget.qml</file>
+        <file>img/map.png</file>
+        <file>qml/MapComponent.qml</file>
+        <file>img/home.png</file>
+        <file>qml/ControlWidget.qml</file>
+        <file>qml/HudWidget.qml</file>
+        <file>qml/MissionWidget.qml</file>
+        <file>qml/ToggleButton.qml</file>
+        <file>qml/CheckButton.qml</file>
+        <file>qml/SpinButton.qml</file>
+        <file>qml/SimpleButton.qml</file>
+        <file>qml/MapSliders.qml</file>
+        <file>qml/MapDlg.qml</file>
+        <file>qml/MissionPoint.qml</file>
+        <file>qml/MissionLine.qml</file>
+        <file>img/yellow-marker.png</file>
+        <file>qml/HomePoint.qml</file>
+        <file>qml/QuadroItem.qml</file>
+        <file>qml/CameraDlg.qml</file>
+        <file>qml/SettingsDlg.qml</file>
+        <file>qml/SpinButton2.qml</file>
+    </qresource>
+</RCC>
