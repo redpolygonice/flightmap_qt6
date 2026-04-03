@@ -131,6 +131,9 @@ float Srtm::GetAltitude(float lat, float lon, float zoom)
 					altlng++;
 					altlat = 0;
 				}
+
+				if (altlng >= size)
+					altlng = 0;
 			}
 
 			_cache[fileName] = altdata;
