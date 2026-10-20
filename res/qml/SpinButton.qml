@@ -13,10 +13,14 @@ SpinBox {
 	editable: true
 	font.pointSize: 11
 
+	background: Rectangle {
+		color: "#172839"
+	}
+
 	contentItem: TextInput {
 		text: control.textFromValue(control.value, control.locale)
 		font: control.font
-		color: enabled ? "black" : "grey"
+		color: enabled ? "white" : "grey"
 		horizontalAlignment: Qt.AlignHCenter
 		verticalAlignment: Qt.AlignVCenter
 		readOnly: !control.editable
@@ -30,7 +34,6 @@ SpinBox {
 		implicitWidth: 16
 		implicitHeight: 16
 		color: control.up.pressed ? "#e4e4e4" : "#f6f6f6"
-		border.color: enabled ? "#21be2b" : "#bdbebf"
 
 		Text {
 			text: "+"
@@ -49,7 +52,6 @@ SpinBox {
 		implicitWidth: 16
 		implicitHeight: 16
 		color: control.down.pressed ? "#e4e4e4" : "#f6f6f6"
-		border.color: enabled ? "#21be2b" : "#bdbebf"
 
 		Text {
 			text: "-"

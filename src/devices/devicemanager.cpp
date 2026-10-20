@@ -5,19 +5,19 @@ namespace device
 
 ConnectionPtr DeviceManager::Active() const
 {
-	ConnectionListConstIterator it = std::find_if(_data.begin(), _data.end(), [this](const ConnectionPtr &connection) {
-		return (connection->IsActive() == true);
-	});
+	for (const auto& [number, connection] : _data)
+	{
+		if (connection->IsActive())
+			return connection;
+	}
 
-	if (it != _data.end())
-		return *it;
 	return nullptr;
 }
 
 void DeviceManager::SetActive(int number)
 {
-	for (const ConnectionPtr &conn : _data)
-		conn->_active = false;
+	for (const auto& [number, connection] : _data)
+		connection->_active = false;
 
 	ConnectionPtr connection = FindByNumber(number);
 	if (connection != nullptr)
@@ -27,56 +27,49 @@ void DeviceManager::SetActive(int number)
 void DeviceManager::Add(const device::DevicePtr &device)
 {
 	static int number = 0;
-	ConnectionPtr connection = Connection::Create(device);
+	ConnectionPtr connection = Connection::Make(device);
 	connection->_number = ++number;
 	connection->_active = true;
 
-	for (const ConnectionPtr &conn : _data)
-		conn->_active = false;
+	for (const auto& [number, connection] : _data)
+		connection->_active = false;
 
-	_data.push_back(connection);
+	_data.emplace(number, connection);
 }
 
 void DeviceManager::Remove(const device::DevicePtr &device)
 {
-	ConnectionListIterator it = std::find_if(_data.begin(), _data.end(), [device](const ConnectionPtr &connection) {
-		return (connection->GetDevice() == device ? true : false);
-	});
-
-	if (it != _data.end())
-		_data.erase(std::remove(_data.begin(), _data.end(), *it), _data.end());
+	for (auto it = _data.begin(); it != _data.end();)
+	{
+		if (it->second->GetDevice() == device)
+			it = _data.erase(it);
+		else
+			++it;
+	}
 }
 
 void DeviceManager::Remove(int number)
 {
-	ConnectionListIterator it = std::find_if(_data.begin(), _data.end(), [number](const ConnectionPtr &connection) {
-		return (connection->Number() == number ? true : false);
-	});
-
-	if (it != _data.end())
-		_data.erase(std::remove(_data.begin(), _data.end(), *it), _data.end());
+	_data.erase(number);
 }
 
 void DeviceManager::RemoveActive()
 {
-	Remove(Active()->GetDevice());
+	Remove(Active()->Number());
 }
 
 void DeviceManager::RemoveAll()
 {
-	for (const ConnectionPtr &connection : _data)
+	for (const auto& [number, connection] : _data)
 		connection->Stop();
 	_data.clear();
 }
 
 ConnectionPtr DeviceManager::FindByNumber(int number) const
 {
-	ConnectionListConstIterator it = std::find_if(_data.begin(), _data.end(), [number](const ConnectionPtr &connection) {
-		return (connection->Number() == number ? true : false);
-	});
-
+	auto it = _data.find(number);
 	if (it != _data.end())
-		return *it;
+		return it->second;
 	return nullptr;
 }
 

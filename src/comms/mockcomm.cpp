@@ -1,7 +1,7 @@
 #include "mockcomm.h"
 #include "common/log.h"
 #include "common/common.h"
-#include "main/broker.h"
+#include "main/controller.h"
 
 #include <cstddef>
 #include <cstdint>

@@ -1,6 +1,6 @@
 #include "simulator.h"
 #include "common/common.h"
-#include "main/broker.h"
+#include "main/controller.h"
 #include "data/qtcoordinate.h"
 #include "main/proxy.h"
 #include "data/grid.h"
@@ -779,7 +779,7 @@ void Simulator::Run()
 
 void Simulator::RunTest()
 {
-	int number = core::Broker::instance()->ActiveConnection()->Number();
+	int number = core::Controller::instance()->ActiveConnection()->Number();
 	if (number == 2)
 	{
 		_lon = 30.316230;

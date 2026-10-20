@@ -1,5 +1,5 @@
 #include "camera.h"
-#include "main/broker.h"
+#include "main/controller.h"
 
 namespace onboard
 {
@@ -147,7 +147,7 @@ void Camera::ParseChunkBytes(const ByteArray &buffer)
 
 void Camera::SaveImage()
 {
-	string fileName = core::Broker::instance()->ImageLocation();
+	string fileName = core::Controller::instance()->ImageLocation();
 	FILE *fp = fopen(fileName.c_str(), "wb");
 	if (fp == nullptr)
 		return;

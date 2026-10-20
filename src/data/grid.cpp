@@ -2,7 +2,7 @@
 #include "common/log.h"
 #include "common/common.h"
 #include "data/icoordinate.h"
-#include "main/broker.h"
+#include "main/controller.h"
 #include "qtcoordinate.h"
 #include <algorithm>
 #include <cstddef>
@@ -413,7 +413,7 @@ void Grid::CreatePoints(const CoordinatePtr &first, const CoordinatePtr &second,
 
 void Grid::ComputeAlt(const CoordinatePtr &coord) const
 {
-	float alt = core::Broker::instance()->ComputeAlt(coord->Lat(), coord->Lon(), _params.Get<bool>("altCheck"), _params.Get<int>("altType"), _params.Get<int>("alt"));
+	float alt = core::Controller::instance()->ComputeAlt(coord->Lat(), coord->Lon(), _params.Get<bool>("altCheck"), _params.Get<int>("altType"), _params.Get<int>("alt"));
 	coord->SetAlt(alt);
 }
 

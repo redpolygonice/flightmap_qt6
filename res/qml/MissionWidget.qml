@@ -208,7 +208,6 @@ Rectangle {
 						Layout.preferredWidth: parent.width
 						Layout.alignment: Qt.AlignVCenter
 						Layout.topMargin: 7
-						Layout.rightMargin: 3
 
 						CheckButton {
 							id: horizStepCheck
@@ -216,14 +215,11 @@ Rectangle {
 							text: "Horiz step"
 
 							onCheckedChanged: {
-								if (checked && drawModePolygon.checked)
-									horizStepValue.enabled = true
-								else
-									horizStepValue.enabled = false
+								onHorizStepCheckedChanged()
 							}
 
 							Component.onCompleted: {
-								onCheckedChanged()
+								onHorizStepCheckedChanged()
 							}
 						}
 
@@ -231,6 +227,8 @@ Rectangle {
 							id: horizStepValue
 							Layout.preferredHeight: 17
 							Layout.preferredWidth: 60
+							Layout.alignment: Qt.AlignRight
+							Layout.rightMargin: 10
 						}
 					}
 
@@ -245,14 +243,11 @@ Rectangle {
 							text: "Vert step"
 
 							onCheckedChanged: {
-								if (checked && drawModePolygon.checked)
-									vertStepValue.enabled = true
-								else
-									vertStepValue.enabled = false
+								onVertStepCheckedChanged()
 							}
 
 							Component.onCompleted: {
-								onCheckedChanged()
+								onVertStepCheckedChanged()
 							}
 						}
 
@@ -260,6 +255,8 @@ Rectangle {
 							id: vertStepValue
 							Layout.preferredHeight: 17
 							Layout.preferredWidth: 60
+							Layout.alignment: Qt.AlignRight
+							Layout.rightMargin: 10
 						}
 					}
 
@@ -281,6 +278,8 @@ Rectangle {
 							id: missionStepValue
 							Layout.preferredHeight: 17
 							Layout.preferredWidth: 60
+							Layout.alignment: Qt.AlignRight
+							Layout.rightMargin: 10
 						}
 
 					}
@@ -295,6 +294,7 @@ Rectangle {
 							text: "Alt"
 							color: "white"
 							Layout.leftMargin: 10
+							Layout.alignment: Qt.AlignVCenter
 							font.pointSize: fontSize
 						}
 
@@ -537,6 +537,22 @@ Rectangle {
 			mapId.drawMission()
 			missionCreated = true
 		}
+	}
+
+	function onHorizStepCheckedChanged()
+	{
+		if (horizStepCheck.checked && drawModePolygon.checked)
+			horizStepValue.enabled = true
+		else
+			horizStepValue.enabled = false
+	}
+
+	function onVertStepCheckedChanged()
+	{
+		if (vertStepCheck.checked && drawModePolygon.checked)
+			vertStepValue.enabled = true
+		else
+			vertStepValue.enabled = false
 	}
 
 	function load()

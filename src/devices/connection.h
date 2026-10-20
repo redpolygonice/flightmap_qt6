@@ -5,15 +5,15 @@
 #include "idevice.h"
 #include "comms/icommunication.h"
 
+#include <map>
+
 namespace device
 {
 
 class Connection;
-typedef std::shared_ptr<Connection> ConnectionPtr;
+using ConnectionPtr = std::shared_ptr<Connection>;
 
-typedef std::vector<ConnectionPtr> ConnectionList;
-typedef std::vector<ConnectionPtr>::iterator ConnectionListIterator;
-typedef std::vector<ConnectionPtr>::const_iterator ConnectionListConstIterator;
+using ConnectionMap = std::map<int, ConnectionPtr>;
 
 // Connection object
 class Connection
@@ -30,7 +30,7 @@ public:
 	~Connection();
 
 public:
-	static ConnectionPtr Create(const device::DevicePtr &device) { return std::make_shared<Connection>(device); }
+	static ConnectionPtr Make(const device::DevicePtr &device) { return std::make_shared<Connection>(device); }
 	void Stop();
 	device::DevicePtr GetDevice() const { return _device; }
 	int Number() const { return _number; }

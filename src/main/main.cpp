@@ -8,7 +8,7 @@
 #endif
 
 #include "proxy.h"
-#include "broker.h"
+#include "controller.h"
 #include "common/log.h"
 #include "common/settings.h"
 #include "messages/dispatcher.h"
@@ -17,7 +17,7 @@
 
 void sighandler(int /*sig*/)
 {
-	core::Broker::instance()->Stop();
+	core::Controller::instance()->Stop();
 	LOG("Program terminated");
 	exit(1);
 }
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
 	engine.load(url);
 	QObject::connect(&engine, &QQmlApplicationEngine::quit, [] () {
-		core::Broker::instance()->Stop();
+		core::Controller::instance()->Stop();
 		LOG("Quit application!");
 		qApp->quit();
 	});

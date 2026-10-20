@@ -18,9 +18,9 @@ typedef std::function<void(const data::CoordinateList &)> ReadMissionFunction;
 typedef std::function<void(bool)> ConnectFunction;
 
 // The main core class
-class Broker : public Singleton<Broker>
+class Controller : public Singleton<Controller>
 {
-	friend class Singleton<Broker>;
+	friend class Singleton<Controller>;
 
 private:
 	device::DeviceManagerPtr _deviceManager;
@@ -38,7 +38,7 @@ private:
 	std::chrono::high_resolution_clock::time_point _timePoint;
 
 private:
-	Broker();
+	Controller();
 
 private:
 	bool PressControl();
@@ -47,7 +47,7 @@ private:
 	void CreateImagePath();
 
 public:
-	~Broker();
+	~Controller();
 
 public:
 	void Stop();

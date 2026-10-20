@@ -22,6 +22,7 @@ Rectangle {
 			textFormat: TextEdit.RichText
 			font.family: "Helvetica"
 			font.pointSize: 12
+			color: "#000000"
 			selectionColor: "#aaaaaa"
 			selectByKeyboard: true
 			selectByMouse: true

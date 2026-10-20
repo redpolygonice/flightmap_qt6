@@ -16,7 +16,7 @@ typedef std::shared_ptr<DeviceManager> DeviceManagerPtr;
 class DeviceManager
 {
 private:
-	ConnectionList _data;
+	ConnectionMap _data;
 
 public:
 	DeviceManager() {}
@@ -28,7 +28,7 @@ public:
 	DeviceManager& operator=(DeviceManager&&) = delete;
 
 public:
-	static DeviceManagerPtr Create() { return std::make_shared<DeviceManager>(); }
+	static DeviceManagerPtr Make() { return std::make_shared<DeviceManager>(); }
 	size_t Count() const { return _data.size(); }
 	ConnectionPtr Active() const;
 	void SetActive(int number);

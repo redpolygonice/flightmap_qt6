@@ -14,9 +14,9 @@ ToolButton {
 
 		color: {
 			if (mouseArea.containsMouse)
-				return "#aaaaaa"
+				return "#7f7f7f"
 			else if (control.checked || control.down)
-				return "#aaaaaa"
+				return "#7f7f7f"
 			else
 				return "transparent"
 		}

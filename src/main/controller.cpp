@@ -1,4 +1,4 @@
-#include "broker.h"
+#include "controller.h"
 #include "common/log.h"
 #include "common/common.h"
 
@@ -21,24 +21,24 @@ namespace core
 	return false;							\
 }
 
-Broker::Broker()
+Controller::Controller()
 	: _deviceManager(nullptr)
 	, _timePoint(std::chrono::high_resolution_clock::now())
 {
-	_deviceManager = device::DeviceManager::Create();
+	_deviceManager = device::DeviceManager::Make();
 	CreateImagePath();
 }
 
-Broker::~Broker()
+Controller::~Controller()
 {
 }
 
-void Broker::Stop()
+void Controller::Stop()
 {
 	_deviceManager->RemoveAll();
 }
 
-bool Broker::IsConnected() const
+bool Controller::IsConnected() const
 {
 	if (_deviceManager->Count() == 0)
 		return false;
@@ -46,7 +46,7 @@ bool Broker::IsConnected() const
 	return true;
 }
 
-bool Broker::Connect(const common::ConnectParams &params)
+bool Controller::Connect(const common::ConnectParams &params)
 {
 	// First create communication and check it
 	comms::CommBuilder commBuilder;
@@ -91,7 +91,7 @@ bool Broker::Connect(const common::ConnectParams &params)
 	return true;
 }
 
-bool Broker::ConnectAsync(const common::ConnectParams &params, const ConnectFunction &func)
+bool Controller::ConnectAsync(const common::ConnectParams &params, const ConnectFunction &func)
 {
 	std::thread([this,params,func]() {
 		bool result = Connect(params);
@@ -100,7 +100,7 @@ bool Broker::ConnectAsync(const common::ConnectParams &params, const ConnectFunc
 	return true;
 }
 
-void Broker::Disconnect()
+void Controller::Disconnect()
 {
 	if (!IsConnected())
 	{
@@ -118,7 +118,7 @@ void Broker::Disconnect()
 	LOG("Device " << device->Name() << " disconnected!");
 }
 
-void Broker::Disconnect(int number)
+void Controller::Disconnect(int number)
 {
 	if (!IsConnected())
 	{
@@ -135,17 +135,17 @@ void Broker::Disconnect(int number)
 	LOG("Device " << device->Name() << " disconnected!");
 }
 
-device::ConnectionPtr Broker::FindConnection(const common::ConnectParams &params) const
+device::ConnectionPtr Controller::FindConnection(const common::ConnectParams &params) const
 {
 	return nullptr;
 }
 
-void Broker::SetAcive(int number)
+void Controller::SetAcive(int number)
 {
 	_deviceManager->SetActive(number);
 }
 
-float Broker::ComputeAlt(float lat, float lon, bool check, int type, int value)
+float Controller::ComputeAlt(float lat, float lon, bool check, int type, int value)
 {
 	float alt = 50.0;
 	common::AltType altType = static_cast<common::AltType>(type);
@@ -155,13 +155,13 @@ float Broker::ComputeAlt(float lat, float lon, bool check, int type, int value)
 		if (altType == common::AltType::Absolute || altType == common::AltType::Terrain)
 			alt = value;
 		else if (altType == common::AltType::Relative)
-			alt = core::Broker::instance()->GetAltitude(lat, lon) + value;
+			alt = core::Controller::instance()->GetAltitude(lat, lon) + value;
 	}
 
 	return alt;
 }
 
-bool Broker::CreateMission(const data::CoordinateList &points, data::CoordinateList &mission, const common::AnyMap &params)
+bool Controller::CreateMission(const data::CoordinateList &points, data::CoordinateList &mission, const common::AnyMap &params)
 {
 	data::Grid grid;
 	if (!grid.Create(points, mission, params) || mission.empty())
@@ -173,21 +173,21 @@ bool Broker::CreateMission(const data::CoordinateList &points, data::CoordinateL
 	return true;
 }
 
-bool Broker::ClearMission()
+bool Controller::ClearMission()
 {
 	CHECK_DEVICE()
 			device->ClearMission();
 	return true;
 }
 
-bool Broker::WriteMission(const data::CoordinateList &points, const common::AnyMap &params)
+bool Controller::WriteMission(const data::CoordinateList &points, const common::AnyMap &params)
 {
 	CHECK_DEVICE()
 			device->WriteMission(points, params);
 	return true;
 }
 
-bool Broker::WriteMissionAsync(const data::CoordinateList &points, const common::AnyMap &params)
+bool Controller::WriteMissionAsync(const data::CoordinateList &points, const common::AnyMap &params)
 {
 	CHECK_DEVICE()
 			std::thread([device,points,params]() {
@@ -196,14 +196,14 @@ bool Broker::WriteMissionAsync(const data::CoordinateList &points, const common:
 	return true;
 }
 
-bool Broker::ReadMission(data::CoordinateList &points)
+bool Controller::ReadMission(data::CoordinateList &points)
 {
 	CHECK_DEVICE()
 			device->ReadMission(points);
 	return true;
 }
 
-bool Broker::ReadMissionAsync(const ReadMissionFunction &func)
+bool Controller::ReadMissionAsync(const ReadMissionFunction &func)
 {
 	CHECK_DEVICE()
 			std::thread([device,func]() {
@@ -214,7 +214,7 @@ bool Broker::ReadMissionAsync(const ReadMissionFunction &func)
 	return true;
 }
 
-bool Broker::SaveMissionToFile(const std::string &fileName, const data::CoordinateList &points, const common::AnyMap &params)
+bool Controller::SaveMissionToFile(const std::string &fileName, const data::CoordinateList &points, const common::AnyMap &params)
 {
 	data::Grid grid;
 	if (!grid.SaveFile(fileName, points, params))
@@ -226,7 +226,7 @@ bool Broker::SaveMissionToFile(const std::string &fileName, const data::Coordina
 	return true;
 }
 
-bool Broker::LoadMissionFromFile(const std::string &fileName, data::CoordinateList &points, common::AnyMap &params)
+bool Controller::LoadMissionFromFile(const std::string &fileName, data::CoordinateList &points, common::AnyMap &params)
 {
 	data::Grid grid;
 	if (!grid.LoadFile(fileName, points, params))
@@ -238,7 +238,7 @@ bool Broker::LoadMissionFromFile(const std::string &fileName, data::CoordinateLi
 	return true;
 }
 
-void Broker::ProcessKeyDown(KeyCode key)
+void Controller::ProcessKeyDown(KeyCode key)
 {
 	if (!PressControl())
 		return;
@@ -277,7 +277,7 @@ void Broker::ProcessKeyDown(KeyCode key)
 	}
 }
 
-void Broker::ProcessKeyUp(KeyCode key)
+void Controller::ProcessKeyUp(KeyCode key)
 {
 	if (key == KeyCode::Left)
 	{
@@ -313,7 +313,7 @@ void Broker::ProcessKeyUp(KeyCode key)
 	}
 }
 
-void Broker::StartMission()
+void Controller::StartMission()
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -333,7 +333,7 @@ void Broker::StartMission()
 	common::Sleep(500);
 }
 
-void Broker::SetHome(const data::CoordinatePtr &point)
+void Controller::SetHome(const data::CoordinatePtr &point)
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -341,7 +341,7 @@ void Broker::SetHome(const data::CoordinatePtr &point)
 	ActiveDevice()->SetHome(point->Lat(), point->Lon(), point->Alt());
 }
 
-void Broker::SetPosition(const data::CoordinatePtr &point)
+void Controller::SetPosition(const data::CoordinatePtr &point)
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -350,7 +350,7 @@ void Broker::SetPosition(const data::CoordinatePtr &point)
 	ActiveDevice()->SetPosition(point->Lat(), point->Lon(), point->Alt());
 }
 
-void Broker::SetMode(uint32_t mode)
+void Controller::SetMode(uint32_t mode)
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -358,7 +358,7 @@ void Broker::SetMode(uint32_t mode)
 	ActiveDevice()->SetMode(mode);
 }
 
-void Broker::Arm(bool arm)
+void Controller::Arm(bool arm)
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -369,7 +369,7 @@ void Broker::Arm(bool arm)
 	ActiveDevice()->SendCommand(MAV_CMD_COMPONENT_ARM_DISARM, param1, param2);
 }
 
-void Broker::Loiter()
+void Controller::Loiter()
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -377,7 +377,7 @@ void Broker::Loiter()
 	ActiveDevice()->SendCommand(MAV_CMD_NAV_LOITER_UNLIM, 1);
 }
 
-void Broker::rtl()
+void Controller::rtl()
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -385,7 +385,7 @@ void Broker::rtl()
 	ActiveDevice()->SendCommand(MAV_CMD_NAV_RETURN_TO_LAUNCH, 1);
 }
 
-void Broker::Auto()
+void Controller::Auto()
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -393,7 +393,7 @@ void Broker::Auto()
 	ActiveDevice()->SetMode(device::FlightDevice::FlightModes::ModeAuto);
 }
 
-void Broker::WriteChannel(int index, uint16_t rc)
+void Controller::WriteChannel(int index, uint16_t rc)
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -406,7 +406,7 @@ void Broker::WriteChannel(int index, uint16_t rc)
 	ActiveDevice()->RcChannelsOverride(_channels[1], _channels[2], _channels[3], _channels[4]);
 }
 
-void Broker::SetDefaultChannel(int index)
+void Controller::SetDefaultChannel(int index)
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -418,7 +418,7 @@ void Broker::SetDefaultChannel(int index)
 	ActiveDevice()->RcChannelsOverride(_channels[1], _channels[2], _channels[3], _channels[4]);
 }
 
-void Broker::SetDefaultChannels()
+void Controller::SetDefaultChannels()
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -427,7 +427,7 @@ void Broker::SetDefaultChannels()
 	ActiveDevice()->RcChannelsOverride(_channels[1], _channels[2], _channels[3], _channels[4]);
 }
 
-void Broker::SendServoCommand(float index, float ch)
+void Controller::SendServoCommand(float index, float ch)
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -435,7 +435,7 @@ void Broker::SendServoCommand(float index, float ch)
 	ActiveDevice()->SendCommand(MAV_CMD_DO_SET_SERVO, index, ch);
 }
 
-void Broker::SendCommand(uint32_t cmd, float param1, float param2, float param3, float param4, float param5, float param6, float param7)
+void Controller::SendCommand(uint32_t cmd, float param1, float param2, float param3, float param4, float param5, float param6, float param7)
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -443,7 +443,7 @@ void Broker::SendCommand(uint32_t cmd, float param1, float param2, float param3,
 	ActiveDevice()->SendCommand(cmd, param1, param2, param3, param4, param5, param6, param7);
 }
 
-void Broker::MoveUp(bool stop)
+void Controller::MoveUp(bool stop)
 {
 	if (stop)
 		SetDefaultChannel(2);
@@ -451,7 +451,7 @@ void Broker::MoveUp(bool stop)
 		WriteChannel(2, channelHigh);
 }
 
-void Broker::MoveDown(bool stop)
+void Controller::MoveDown(bool stop)
 {
 	if (stop)
 		SetDefaultChannel(2);
@@ -459,7 +459,7 @@ void Broker::MoveDown(bool stop)
 		WriteChannel(2, channelLow);
 }
 
-void Broker::MoveLeft(bool stop)
+void Controller::MoveLeft(bool stop)
 {
 	if (stop)
 		SetDefaultChannel(1);
@@ -467,7 +467,7 @@ void Broker::MoveLeft(bool stop)
 		WriteChannel(1, channelLow);
 }
 
-void Broker::MoveRight(bool stop)
+void Controller::MoveRight(bool stop)
 {
 	if (stop)
 		SetDefaultChannel(1);
@@ -475,7 +475,7 @@ void Broker::MoveRight(bool stop)
 		WriteChannel(1, channelHigh);
 }
 
-void Broker::MoveForward(bool stop)
+void Controller::MoveForward(bool stop)
 {
 	if (stop)
 		SetDefaultChannel(3);
@@ -483,7 +483,7 @@ void Broker::MoveForward(bool stop)
 		WriteChannel(3, channelHigh);
 }
 
-void Broker::MoveBack(bool stop)
+void Controller::MoveBack(bool stop)
 {
 	if (stop)
 		SetDefaultChannel(3);
@@ -491,7 +491,7 @@ void Broker::MoveBack(bool stop)
 		WriteChannel(3, channelLow);
 }
 
-void Broker::TurnLeft(bool stop)
+void Controller::TurnLeft(bool stop)
 {
 	if (stop)
 		SetDefaultChannel(4);
@@ -499,7 +499,7 @@ void Broker::TurnLeft(bool stop)
 		WriteChannel(4, channelLow);
 }
 
-void Broker::TurnRight(bool stop)
+void Controller::TurnRight(bool stop)
 {
 	if (stop)
 		SetDefaultChannel(4);
@@ -507,7 +507,7 @@ void Broker::TurnRight(bool stop)
 		WriteChannel(4, channelHigh);
 }
 
-void Broker::StartCamera()
+void Controller::StartCamera()
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -515,7 +515,7 @@ void Broker::StartCamera()
 	ActiveDevice()->StartCamera();
 }
 
-void Broker::StopCamera()
+void Controller::StopCamera()
 {
 	if (ActiveDevice() == nullptr)
 		return;
@@ -523,7 +523,7 @@ void Broker::StopCamera()
 	ActiveDevice()->StopCamera();
 }
 
-bool Broker::PressControl()
+bool Controller::PressControl()
 {
 	std::chrono::high_resolution_clock::time_point nowPoint = std::chrono::high_resolution_clock::now();
 	int64_t count = std::chrono::duration_cast<std::chrono::milliseconds>(nowPoint - _timePoint).count();
@@ -534,7 +534,7 @@ bool Broker::PressControl()
 	return true;
 }
 
-void Broker::CreateImagePath()
+void Controller::CreateImagePath()
 {
 	string tmpDir;
 #ifdef WIN32

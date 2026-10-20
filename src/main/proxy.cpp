@@ -2,7 +2,7 @@
 #include "common/anymap.h"
 #include "common/log.h"
 #include "common/common.h"
-#include "main/broker.h"
+#include "main/controller.h"
 #include "common/devicetypes.h"
 #include "data/qtcoordinate.h"
 
@@ -33,32 +33,32 @@ ProxyApp::~ProxyApp()
 
 void ProxyApp::processKeyDown(int key)
 {
-	Broker::instance()->ProcessKeyDown(static_cast<KeyCode>(key));
+	Controller::instance()->ProcessKeyDown(static_cast<KeyCode>(key));
 }
 
 void ProxyApp::processKeyUp(int key)
 {
-	Broker::instance()->ProcessKeyUp(static_cast<KeyCode>(key));
+	Controller::instance()->ProcessKeyUp(static_cast<KeyCode>(key));
 }
 
 void ProxyApp::arm(bool arm)
 {
-	Broker::instance()->Arm(arm);
+	Controller::instance()->Arm(arm);
 }
 
 void ProxyApp::loiter()
 {
-	Broker::instance()->Loiter();
+	Controller::instance()->Loiter();
 }
 
 void ProxyApp::autom()
 {
-	Broker::instance()->Auto();
+	Controller::instance()->Auto();
 }
 
 void ProxyApp::rtl()
 {
-	Broker::instance()->rtl();
+	Controller::instance()->rtl();
 }
 
 void ProxyApp::beep()
@@ -67,47 +67,47 @@ void ProxyApp::beep()
 
 void ProxyApp::writeChannel(int index, int rc)
 {
-	Broker::instance()->WriteChannel(index, rc);
+	Controller::instance()->WriteChannel(index, rc);
 }
 
 void ProxyApp::moveUp(bool stop)
 {
-	Broker::instance()->MoveUp(stop);
+	Controller::instance()->MoveUp(stop);
 }
 
 void ProxyApp::moveDown(bool stop)
 {
-	Broker::instance()->MoveDown(stop);
+	Controller::instance()->MoveDown(stop);
 }
 
 void ProxyApp::moveLeft(bool stop)
 {
-	Broker::instance()->MoveLeft(stop);
+	Controller::instance()->MoveLeft(stop);
 }
 
 void ProxyApp::moveRight(bool stop)
 {
-	Broker::instance()->MoveRight(stop);
+	Controller::instance()->MoveRight(stop);
 }
 
 void ProxyApp::moveForward(bool stop)
 {
-	Broker::instance()->MoveForward(stop);
+	Controller::instance()->MoveForward(stop);
 }
 
 void ProxyApp::moveBack(bool stop)
 {
-	Broker::instance()->MoveBack(stop);
+	Controller::instance()->MoveBack(stop);
 }
 
 void ProxyApp::turnLeft(bool stop)
 {
-	Broker::instance()->TurnLeft(stop);
+	Controller::instance()->TurnLeft(stop);
 }
 
 void ProxyApp::turnRight(bool stop)
 {
-	Broker::instance()->TurnRight(stop);
+	Controller::instance()->TurnRight(stop);
 }
 
 void ProxyApp::saveMissionToFile(const QString &fileName, const QVariantMap &params)
@@ -118,7 +118,7 @@ void ProxyApp::saveMissionToFile(const QString &fileName, const QVariantMap &par
 	data::CoordinateList points;
 	VariantMapListToCoordinateList(_missionPoints, points);
 
-	Broker::instance()->SaveMissionToFile(fileName.toStdString(), points, anyParams);
+	Controller::instance()->SaveMissionToFile(fileName.toStdString(), points, anyParams);
 	_settings->Set("missionFilePath", QFileInfo(fileName).path().toStdString());
 }
 
@@ -126,7 +126,7 @@ QVariantMap ProxyApp::loadMissionFromFile(const QString &fileName)
 {
 	common::AnyMap anyParams;
 	data::CoordinateList points;
-	if (!Broker::instance()->LoadMissionFromFile(fileName.toStdString(), points, anyParams))
+	if (!Controller::instance()->LoadMissionFromFile(fileName.toStdString(), points, anyParams))
 		return QVariantMap();
 
 	QVariantMap params;
@@ -139,7 +139,7 @@ QVariantMap ProxyApp::loadMissionFromFile(const QString &fileName)
 
 QString ProxyApp::imageLocation()
 {
-	return QString::fromStdString(Broker::instance()->ImageLocation());
+	return QString::fromStdString(Controller::instance()->ImageLocation());
 }
 
 bool ProxyApp::imageExists()
@@ -149,12 +149,12 @@ bool ProxyApp::imageExists()
 
 void ProxyApp::startCamera()
 {
-	Broker::instance()->StartCamera();
+	Controller::instance()->StartCamera();
 }
 
 void ProxyApp::stopCamera()
 {
-	Broker::instance()->StopCamera();
+	Controller::instance()->StopCamera();
 }
 
 void ProxyApp::log(const QString &text, int level)
@@ -176,7 +176,7 @@ void ProxyApp::createMission(const QVariantList &points, const QVariantMap &para
 		//LOGD("Lat: " << point->Lat() << ", Lon: " << point->Lon());
 
 	data::CoordinateList missionPoints;
-	if (!Broker::instance()->CreateMission(coordinateList, missionPoints, _missionParams))
+	if (!Controller::instance()->CreateMission(coordinateList, missionPoints, _missionParams))
 		return;
 
 	CoordinateListToVariantMapList(missionPoints, _missionPoints);
@@ -196,7 +196,7 @@ void ProxyApp::updateMissionPoint(const QVariant &point, int number)
 
 void ProxyApp::clearMission()
 {
-	Broker::instance()->ClearMission();
+	Controller::instance()->ClearMission();
 	_missionPoints.clear();
 	_missionParams.Clear();
 }
@@ -205,12 +205,12 @@ void ProxyApp::writeMission()
 {
 	data::CoordinateList points;
 	VariantMapListToCoordinateList(_missionPoints, points);
-	Broker::instance()->WriteMissionAsync(points, _missionParams);
+	Controller::instance()->WriteMissionAsync(points, _missionParams);
 }
 
 void ProxyApp::readMission()
 {
-	Broker::instance()->ReadMissionAsync([this](const data::CoordinateList &points) {
+	Controller::instance()->ReadMissionAsync([this](const data::CoordinateList &points) {
 		CoordinateListToVariantMapList(points, _missionPoints);
 		emit missionPointsChanged();
 	});
@@ -395,7 +395,7 @@ void ProxyApp::saveMap(const QString &provider, const QString &type)
 void ProxyApp::connect()
 {
 	common::ConnectParams params = connectParams();
-	if (Broker::instance()->FindConnection(params))
+	if (Controller::instance()->FindConnection(params))
 	{
 		LOGW("Device already connected!");
 		return;
@@ -427,12 +427,12 @@ void ProxyApp::connect()
 	LOG("Connecting to " << host.str() << " ..");
 
 	string deviceName = host.str();
-	Broker::instance()->ConnectAsync(params, [this, deviceName](bool result) {
+	Controller::instance()->ConnectAsync(params, [this, deviceName](bool result) {
 		if (result)
 		{
 			LOG("Connected to " << deviceName << "!");
 
-			_telebox = Broker::instance()->Telebox();
+			_telebox = Controller::instance()->Telebox();
 			if (_telebox == nullptr)
 			{
 				LOGC("There is no telemetry object!");
@@ -449,12 +449,12 @@ void ProxyApp::connect()
 
 void ProxyApp::disconnect()
 {
-	Broker::instance()->Disconnect();
+	Controller::instance()->Disconnect();
 }
 
 void ProxyApp::disconnect(int number)
 {
-	Broker::instance()->Disconnect(number);
+	Controller::instance()->Disconnect(number);
 }
 
 void ProxyApp::startTelemetry()
@@ -487,8 +487,8 @@ void ProxyApp::startTelemetry()
 			_telemetry["mode"] = QString::fromStdString(_telebox->flightmode);
 			_telemetry["lat"] = _telebox->lat;
 			_telemetry["lon"] = _telebox->lon;
-			_telemetry["number"] = Broker::instance()->ActiveConnection()->Number();
-			_telemetry["name"] = QString::fromStdString(Broker::instance()->ActiveDevice()->Name());
+			_telemetry["number"] = Controller::instance()->ActiveConnection()->Number();
+			_telemetry["name"] = QString::fromStdString(Controller::instance()->ActiveDevice()->Name());
 			_telemetry["status"] = 1;
 
 			if (!_telebox->statustext.empty())
@@ -514,8 +514,8 @@ void ProxyApp::stopTelemetry()
 void ProxyApp::setAcive(int number)
 {
 	std::lock_guard<std::mutex> lock(_teleboxMutex);
-	Broker::instance()->SetAcive(number);
-	_telebox = Broker::instance()->Telebox();
+	Controller::instance()->SetAcive(number);
+	_telebox = Controller::instance()->Telebox();
 }
 
 bool ProxyApp::isWindows()
@@ -529,12 +529,12 @@ bool ProxyApp::isWindows()
 
 float ProxyApp::getAltitude(float lat, float lon)
 {
-	return Broker::instance()->GetAltitude(lat, lon);
+	return Controller::instance()->GetAltitude(lat, lon);
 }
 
 float ProxyApp::computeAlt(float lat, float lon, bool check, int type, int value)
 {
-	return Broker::instance()->ComputeAlt(lat, lon, check, type, value);
+	return Controller::instance()->ComputeAlt(lat, lon, check, type, value);
 }
 
 common::ConnectParams ProxyApp::connectParams() const
@@ -671,7 +671,7 @@ void ProxyApp::TestMissionPoints()
 	params.protocol = "Mock";
 
 	LOG("Connecting to Mock device");
-	if (!Broker::instance()->Connect(params))
+	if (!Controller::instance()->Connect(params))
 	{
 		LOGE("Can't connect to Mock device!");
 		return;
@@ -702,7 +702,7 @@ void ProxyApp::TestMissionPoints()
 	};
 
 	data::CoordinateList missionPoints;
-	if (!core::Broker::instance()->CreateMission(coordinateList, missionPoints, missionParams))
+	if (!core::Controller::instance()->CreateMission(coordinateList, missionPoints, missionParams))
 	{
 		LOGE("Can't create mission!");
 		return;
@@ -726,7 +726,7 @@ void ProxyApp::TestMissionPolygon()
 	params.protocol = "Mock";
 
 	LOG("Connecting to Mock device");
-	if (!Broker::instance()->Connect(params))
+	if (!Controller::instance()->Connect(params))
 	{
 		LOGE("Can't connect to Mock device!");
 		return;
@@ -758,7 +758,7 @@ void ProxyApp::TestMissionPolygon()
 	};
 
 	data::CoordinateList missionPoints;
-	if (!core::Broker::instance()->CreateMission(coordinateList, missionPoints, missionParams))
+	if (!core::Controller::instance()->CreateMission(coordinateList, missionPoints, missionParams))
 	{
 		LOGE("Can't create mission!");
 		return;
